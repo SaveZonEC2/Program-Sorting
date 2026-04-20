@@ -178,6 +178,7 @@
             <button id="quick-sort">Quick Sort</button>
             <button id="merge-sort">Merge Sort</button>
             <button id="bubble-sort">Bubble Sort</button>
+            <button id="heap-sort">Heap Sort</button>
         </div>
 
         <div class="top">
@@ -234,7 +235,7 @@
             // Save the initial state
             steps.push({
                 array: [...arr],
-                description: "เริ่มต้น: รับค่าข้อมูลนำเข้า"
+                description: "เริ่มต้น: รับค่าข้อมูลนำเข้า เรียงลำดับด้วย Selection Sort"
             });
 
             for (let i = 0; i < n - 1; i++) {
@@ -297,7 +298,7 @@
             }
             return steps;
         }
-
+        //--Insertion--
         function InsertionSort(arr) {
             let data = [...arr];
             let steps = [{ array: [...data], description: "เริ่มต้น: เตรียมเรียงลำดับแบบ Insertion Sort" }];
@@ -352,6 +353,65 @@
             sort(0, data.length - 1);
             return steps;
         }
+        function HeapSort(arr) {
+            let data = [...arr];
+            let n = data.length;
+            let steps = [{ array: [...data], description: "เริ่มต้น: เตรียมเรียงลำดับแบบ Heap Sort" }];
+
+            // ฟังก์ชันสร้าง Max Heap
+            function heapify(n, i) {
+                let largest = i;
+                let left = 2 * i + 1;
+                let right = 2 * i + 2;
+
+                if (left < n && parseFloat(data[left]) > parseFloat(data[largest])) {
+                    largest = left;
+                }
+
+                if (right < n && parseFloat(data[right]) > parseFloat(data[largest])) {
+                    largest = right;
+                }
+
+                if (largest !== i) {
+                    let val1 = data[i];
+                    let val2 = data[largest];
+                    [data[i], data[largest]] = [data[largest], data[i]];
+
+                    steps.push({
+                        array: [...data],
+                        description: `Heapify: สลับค่า ${val1} กับ ${val2} เพื่อให้ตัวที่มากกว่าขึ้นเป็นโหนดแม่`
+                    });
+
+                    heapify(n, largest);
+                }
+            }
+
+            // 1. สร้าง Max Heap (Rearrange array)
+            for (let i = Math.floor(n / 2) - 1; i >= 0; i--) {
+                heapify(n, i);
+            }
+            steps.push({ array: [...data], description: "สร้างโครงสร้าง Max Heap เสร็จสิ้น (ตัวที่มากที่สุดอยู่ที่ตำแหน่งแรก)" });
+
+            // 2. ดึงข้อมูลออกจาก Heap ทีละตัว
+            for (let i = n - 1; i > 0; i--) {
+                let rootValue = data[0];
+                let lastValue = data[i];
+
+                // สลับตัวแรก (มากสุด) กับตัวสุดท้าย
+                [data[0], data[i]] = [data[i], data[0]];
+
+                steps.push({
+                    array: [...data],
+                    description: `ย้ายค่าที่มากที่สุด (${rootValue}) ไปไว้ที่ท้าย และนำ (${lastValue}) ขึ้นมาเพื่อจัด Heap ใหม่`
+                });
+
+                // จัด Heap ใหม่เฉพาะส่วนที่เหลือ
+                heapify(i, 0);
+            }
+
+            steps.push({ array: [...data], description: "เสร็จสิ้น: เรียงลำดับข้อมูลด้วย Heap Sort เรียบร้อย" });
+            return steps;
+        }
 
         // --- 6. Main Sort Button Controller ---
         document.getElementById('sort').addEventListener('click', () => {
@@ -369,6 +429,7 @@
             else if (currentAlgo === 'insertion') results = InsertionSort(items);
             else if (currentAlgo === 'quick') results = QuickSort(items);
             else if (currentAlgo === 'merge') results = MergeSort(items);
+            else if (currentAlgo === 'heap') results = HeapSort(items);
             else {
                 alert("ฟังก์ชัน " + currentAlgo + " ยังไม่เปิดใช้งาน");
                 return;
