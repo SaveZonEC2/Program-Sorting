@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="th">
+
+<head>
+    <meta charset="utf-8">
+    <title>Program Sorting</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap"
+        rel="stylesheet">
+    <style>
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'IBM Plex Sans Thai', sans-serif;
+            background: #f5f5f3;
+            color: #1a1a1a;
+            min-height: 100vh;
+            padding: 40px 20px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .wrapper {
+            width: 100%;
+            max-width: 900px;
+        }
+
+        .top {
+            margin-bottom: 28px;
+        }
+
+        .top p {
+            font-size: 22px;
+            font-weight: 600;
+            letter-spacing: -0.3px;
+        }
+
+        .algo-row {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-bottom: 28px;
+        }
+
+        .algo-row button {
+            padding: 8px 16px;
+            border-radius: 8px;
+            border: 1.5px solid #d4d4d0;
+            background: #fff;
+            font-family: 'IBM Plex Sans Thai', sans-serif;
+            font-size: 13px;
+            font-weight: 500;
+            color: #555;
+            cursor: pointer;
+            transition: border-color 0.15s, color 0.15s;
+        }
+
+        .algo-row button:hover {
+            border-color: #888;
+            color: #1a1a1a;
+        }
+
+        .input {
+            margin-bottom: 16px;
+        }
+
+        .input p {
+            font-size: 13px;
+            font-weight: 500;
+            color: #555;
+            margin-bottom: 8px;
+        }
+
+        .input input {
+            width: 100%;
+            height: 44px;
+            padding: 0 14px;
+            border: 1.5px solid #d4d4d0;
+            border-radius: 10px;
+            background: #fff;
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 14px;
+            color: #1a1a1a;
+            outline: none;
+            transition: border-color 0.15s;
+        }
+
+        .input input:focus {
+            border-color: #1a1a1a;
+        }
+
+        .button {
+            margin-bottom: 28px;
+        }
+
+        .button button {
+            height: 44px;
+            padding: 0 28px;
+            background: #1a1a1a;
+            color: #fff;
+            border: none;
+            border-radius: 10px;
+            font-family: 'IBM Plex Sans Thai', sans-serif;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: opacity 0.15s;
+        }
+
+        .button button:hover {
+            opacity: 0.8;
+        }
+
+        .output p {
+            font-size: 13px;
+            font-weight: 500;
+            color: #555;
+            margin-bottom: 10px;
+        }
+
+        .table-wrap {
+            background: #fff;
+            border: 1.5px solid #d4d4d0;
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            table-layout: auto;
+        }
+
+        thead tr {
+            background: #f5f5f3;
+            border-bottom: 1.5px solid #d4d4d0;
+        }
+
+        th {
+            padding: 10px 16px;
+            text-align: left;
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 11px;
+            font-weight: 500;
+            color: #888;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+        }
+
+        td {
+            padding: 12px 16px;
+            font-size: 14px;
+            border-bottom: 1px solid #ebebea;
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        tbody tr:hover td {
+            background: #fafaf8;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="wrapper">
+
+        <div class="algo-row">
+            <button id="selection-sort">Selection Sort</button>
+            <button id="insertion-sort">Insertion Sort</button>
+            <button id="quick-sort">Quick Sort</button>
+            <button id="merge-sort">Merge Sort</button>
+            <button id="bubble-sort">Bubble Sort</button>
+        </div>
+
+        <div class="top">
+            <p>Program Sorting</p>
+        </div>
+
+        <div class="input">
+            <p>Enter your text:</p>
+            <input type="text" id="text" name="text">
+        </div>
+
+        <div class="button">
+            <button id="sort">Sort</button>
+        </div>
+
+        <div class="output">
+            <p>Result:</p>
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ลำดับ</th>
+                            <th>Text</th>
+                            <th>Description</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </div>
+    <script>
+        let currentAlgo = 'selection'; // Default algorithm selection
+
+        // 1. Handle Algorithm Selection Buttons
+        const algoButtons = document.querySelectorAll('.algo-row button');
+        algoButtons.forEach(btn => {
+            btn.onclick = () => {
+                currentAlgo = btn.id.replace('-sort', '');
+                // Visual feedback: highlight active button
+                algoButtons.forEach(b => b.style.borderColor = '#d4d4d0');
+                btn.style.borderColor = '#1a1a1a';
+            };
+        });
+
+        // --- 2. SELECTION SORT ---
+        function SelectionSort(arr) {
+            let n = arr.length;
+            let steps = [];
+
+            // Save the initial state
+            steps.push({
+                array: [...arr],
+                description: "เริ่มต้น: รับค่าข้อมูลนำเข้า"
+            });
+
+            for (let i = 0; i < n - 1; i++) {
+                let minindex = i;
+
+                // Search for the smallest element
+                for (let j = i + 1; j < n; j++) {
+                    if (arr[j] < arr[minindex]) {
+                        minindex = j;
+                    }
+                }
+
+                // If a smaller element was found, swap it
+                if (minindex !== i) {
+                    let temp = arr[i];
+                    arr[i] = arr[minindex];
+                    arr[minindex] = temp;
+
+                    steps.push({
+                        array: [...arr],
+                        description: `เปรียบเทียบ ${arr[i]} กับ ${arr[minindex]} และสลับค่า ${arr[i]} กับ ${arr[minindex]} (เพราะเป็นค่าที่น้อยที่สุดในรอบนี้)`
+                    });
+                } else {
+                    steps.push({
+                        array: [...arr],
+                        description: `ตำแหน่งที่ ${i + 1} ถูกต้องอยู่แล้ว ไม่มีการสลับ`
+                    });
+                }
+            }
+
+            steps.push({
+                array: [...arr],
+                description: "เสร็จสิ้น: เรียงลำดับข้อมูลเรียบร้อย"
+            });
+
+            return steps;
+        }
+
+        // --- 3. BUBBLE SORT ---
+        function BubbleSort(arr) {
+            let data = [...arr];
+            let n = data.length;
+            let steps = [{ array: [...data], description: "เริ่มต้น: เตรียมเรียงลำดับแบบ Bubble Sort (เปรียบเทียบคู่ติดกัน)" }];
+
+            for (let i = 0; i < n; i++) {
+                let swapped = false;
+                for (let j = 0; j < n - i - 1; j++) {
+                    let left = data[j];
+                    let right = data[j + 1];
+                    if (parseFloat(left) > parseFloat(right)) {
+                        [data[j], data[j + 1]] = [data[j + 1], data[j]];
+                        swapped = true;
+                        steps.push({
+                            array: [...data],
+                            description: `เปรียบเทียบคู่ ${left} กับ ${right}: เนื่องจาก ${left} มากกว่า จึงสลับที่กัน`
+                        });
+                    }
+                }
+                if (!swapped) break;
+            }
+            return steps;
+        }
+
+        function InsertionSort(arr) {
+            let data = [...arr];
+            let steps = [{ array: [...data], description: "เริ่มต้น: เตรียมเรียงลำดับแบบ Insertion Sort" }];
+
+            for (let i = 1; i < data.length; i++) {
+                let key = data[i];
+                let j = i - 1;
+                let startPos = i;
+
+                while (j >= 0 && parseFloat(data[j]) > parseFloat(key)) {
+                    data[j + 1] = data[j];
+                    j--;
+                }
+                data[j + 1] = key;
+                steps.push({
+                    array: [...data],
+                    description: `หยิบค่า ${key} จากตำแหน่งที่ ${startPos} มาแทรกไว้ในตำแหน่งที่ ${j + 1} หลังจากเลื่อนตัวที่มากกว่าไปทางขวา`
+                });
+            }
+            return steps;
+        }
+
+        // --- 5. QUICK SORT ---
+        function QuickSort(arr) {
+            let data = [...arr];
+            let steps = [{ array: [...data], description: "เริ่มต้น: เรียงลำดับแบบ Quick Sort (Divide and Conquer)" }];
+
+            function partition(l, r) {
+                let pivot = data[r];
+                let i = l - 1;
+                for (let j = l; j < r; j++) {
+                    if (parseFloat(data[j]) < parseFloat(pivot)) {
+                        i++;
+                        [data[i], data[j]] = [data[j], data[i]];
+                    }
+                }
+                [data[i + 1], data[r]] = [data[r], data[i + 1]];
+                steps.push({
+                    array: [...data],
+                    description: `เลือก Pivot คือ ${pivot}: จัดให้เลขที่น้อยกว่าอยู่ฝั่งซ้าย และเลขที่มากกว่าอยู่ฝั่งขวาของ Pivot`
+                });
+                return i + 1;
+            }
+
+            function sort(l, r) {
+                if (l < r) {
+                    let pi = partition(l, r);
+                    sort(l, pi - 1);
+                    sort(pi + 1, r);
+                }
+            }
+            sort(0, data.length - 1);
+            return steps;
+        }
+
+        // --- 6. Main Sort Button Controller ---
+        document.getElementById('sort').addEventListener('click', () => {
+            const inputElement = document.getElementById('text');
+            const tbody = document.querySelector('tbody');
+            let items = inputElement.value.split(',').map(item => item.trim()).filter(i => i !== "");
+
+            if (items.length === 0) return alert("กรุณาใส่ข้อมูลคั่นด้วยคอมมา (เช่น 5,2,8)");
+
+            let results = [];
+
+            // Switching logic based on currentAlgo
+            if (currentAlgo === 'selection') results = SelectionSort(items);
+            else if (currentAlgo === 'bubble') results = BubbleSort(items);
+            else if (currentAlgo === 'insertion') results = InsertionSort(items);
+            else if (currentAlgo === 'quick') results = QuickSort(items);
+            else if (currentAlgo === 'merge') results = MergeSort(items);
+            else {
+                alert("ฟังก์ชัน " + currentAlgo + " ยังไม่เปิดใช้งาน");
+                return;
+            }
+
+            // Render to Table
+            tbody.innerHTML = '';
+            results.forEach((step, index) => {
+                const row = `
+                <tr>
+                    <td>${index + 1}</td>
+                    <td>[ ${step.array.join(', ')} ]</td>
+                    <td>${step.description}</td>
+                </tr>`;
+                tbody.innerHTML += row;
+            });
+        });
+        function MergeSort(arr) {
+            let data = [...arr];
+            let steps = [{ array: [...data], description: "เริ่มต้น: เตรียมเรียงลำดับแบบ Merge Sort (แบ่งข้อมูลออกเป็นส่วนย่อย)" }];
+
+            function merge(left, right) {
+                let result = [];
+                let lIdx = 0;
+                let rIdx = 0;
+
+                // เปรียบเทียบข้อมูลและรวมกลุ่ม
+                while (lIdx < left.length && rIdx < right.length) {
+                    if (parseFloat(left[lIdx]) < parseFloat(right[rIdx])) {
+                        result.push(left[lIdx]);
+                        lIdx++;
+                    } else {
+                        result.push(right[rIdx]);
+                        rIdx++;
+                    }
+                }
+
+                let finalResult = result.concat(left.slice(lIdx)).concat(right.slice(rIdx));
+
+                // บันทึกขั้นตอนการรวม (Merge)
+                steps.push({
+                    array: [...finalResult], // เพื่อให้ดูง่ายในตาราง จะแสดงผลกลุ่มที่รวมกันแล้ว
+                    description: `รวมกลุ่ม (Merge): นำกลุ่ม [${left.join(', ')}] และ [${right.join(', ')}] มาเรียงลำดับใหม่ได้เป็น [${finalResult.join(', ')}]`
+                });
+
+                return finalResult;
+            }
+
+            function divide(array) {
+                if (array.length <= 1) return array;
+
+                const mid = Math.floor(array.length / 2);
+                const left = array.slice(0, mid);
+                const right = array.slice(mid);
+
+                // บันทึกขั้นตอนการแบ่ง
+                steps.push({
+                    array: [...array],
+                    description: `แบ่งกลุ่ม (Divide): แยกชุดข้อมูล [${array.join(', ')}] ออกเป็นสองส่วนคือ [${left.join(', ')}] และ [${right.join(', ')}]`
+                });
+
+                return merge(divide(left), divide(right));
+            }
+
+            const finalSorted = divide(data);
+            steps.push({ array: [...finalSorted], description: "เสร็จสิ้น: ข้อมูลทั้งหมดถูกรวมและเรียงลำดับเรียบร้อย" });
+            return steps;
+        }
+    </script>
+</body>
+
+</html>
